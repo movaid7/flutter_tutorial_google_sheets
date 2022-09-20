@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_tutorial_google_sheets/google_sheets_api.dart';
 import 'package:gsheets/gsheets.dart';
 
 const _spreadsheetId = '1j2yHzgaXfKQSmRPYPvs_bGjq7W9JWFLTcjVlGsDVn4Q';
@@ -14,83 +16,90 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // fetch creds from secure storage
   String? _creds;
-  Map<String, String> _times = {};
+  final Map<String, String> _times = {};
   Worksheet? sheet;
-
-  Future<void> _openGSheet() async {
-    const storage = FlutterSecureStorage();
-    _creds = (await storage.read(key: 'GSheet'));
-    try {
-      final gsheets = GSheets(_creds);
-      final ss = await gsheets.spreadsheet(_spreadsheetId);
-      sheet = ss.worksheetByTitle('Times');
-      _read();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> _read() async {
-    if (sheet == null) {
-      return;
-    } else if (_times.isNotEmpty) {
-      return;
-    } else {
-      final names = await sheet!.values.column(1);
-      final times = await sheet!.values.column(2);
-      names.removeAt(0);
-      times.removeAt(0);
-      // convert time decimal to standard form
-      // e.g. 0.725694444444444 represents 17:25
-      for (var i = 0; i < times.length; i++) {
-        final time = double.parse(times[i]);
-        final hour = (time * 24).floor();
-        final minute = ((time * 24 - hour) * 60).floor();
-        times[i] = '${hour.toString().padLeft(2, '0')}:'
-            '${minute.toString().padLeft(2, '0')}';
-      }
-      setState(() {
-        _times = Map.fromIterables(names, times);
-      });
-    }
-  }
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _openGSheet();
+    _controller.addListener(() => setState(() {}));
+  }
+
+  // wait for the data to be fetched from google sheets
+  void startLoading() {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (GoogleSheetsApi.loading == false) {
+        setState(() {});
+        timer.cancel();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // start loading until the data arrives
+    if (GoogleSheetsApi.loading == true) {
+      startLoading();
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Google Sheets'),
       ),
-      body: FutureBuilder(
-        future: _read(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return _buildListView(_times);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                child: GoogleSheetsApi.loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : TimesList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-Widget _buildListView(Map<String, String> times) {
-  return ListView.builder(
-    itemCount: times.length,
-    itemBuilder: (BuildContext context, int index) {
-      final name = times.keys.elementAt(index);
-      final time = times.values.elementAt(index);
-      return ListTile(
-        title: Text(name),
-        trailing: Text(time),
-      );
-    },
-  );
+class TimesList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: GoogleSheetsApi.currentTimes.length,
+      itemBuilder: (BuildContext context, int index) {
+        final name = GoogleSheetsApi.currentTimes.keys.elementAt(index);
+        final time = GoogleSheetsApi.currentTimes.values.elementAt(index);
+        return Column(
+          children: [
+            if (index % 2 == 0)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  '${name.substring(0, 1).toUpperCase()}${name.substring(0, name.length - 5).substring(1)}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: ListTile(
+                title: Text(name),
+                trailing: Text(time),
+                tileColor: Colors.grey[200],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            if (index % 2 == 1) const SizedBox(height: 20),
+          ],
+        );
+      },
+    );
+  }
 }
