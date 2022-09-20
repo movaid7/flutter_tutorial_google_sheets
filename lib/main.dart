@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tutorial_google_sheets/google_sheets_api.dart';
 import 'package:flutter_tutorial_google_sheets/home_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -9,6 +10,7 @@ void main() async {
   final creds = await rootBundle.loadString('assets/creds.txt');
   const storage = FlutterSecureStorage();
   await storage.write(key: 'GSheet', value: creds);
+  GoogleSheetsApi().init();
 
   runApp(const MyApp());
 }
