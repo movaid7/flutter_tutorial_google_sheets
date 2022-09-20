@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tutorial_google_sheets/home_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // store creds to secure local storage
+  final creds = await rootBundle.loadString('assets/creds.txt');
+  const storage = FlutterSecureStorage();
+  await storage.write(key: 'GSheet', value: creds);
+
   runApp(const MyApp());
 }
 
@@ -11,10 +19,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.deepOrange),
+      debugShowCheckedModeBanner: false,
       home: const HomePage(),
     );
   }
