@@ -1,16 +1,13 @@
-# flutter_tutorial_google_sheets
+# Flutter × Google Sheets
 
-A new Flutter project.
+### Loosely based on
 
-## Getting Started
+[![NOTES app • Flutter × Google Sheets](https://img.youtube.com/vi/SoBpxS46HEA/0.jpg)](https://www.youtube.com/watch?v=SoBpxS46HEA&t=178s "NOTES app • Flutter × Google Sheets")
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+### Learnings
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Authenticating Google Sheets API for interacting with Flutter app using Credentials JSON
+  - Best practices dictate that the JSON data be securely stored (remote server or secure app storage) and securely accessed by the app
+  
+- CRUD operations on Google Sheets data using the [GSheets package](https://pub.dev/packages/gsheets/)
