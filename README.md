@@ -2,7 +2,7 @@
 
 ### Loosely based on
 
-[![NOTES app • Flutter × Google Sheets](https://img.youtube.com/vi/SoBpxS46HEA/0.jpg)](https://www.youtube.com/watch?v=SoBpxS46HEA&t=178s "NOTES app • Flutter × Google Sheets")
+[![NOTES app • Flutter × Google Sheets](https://img.youtube.com/vi/SoBpxS46HEA/0.jpg)](https://www.youtube.com/watch?v=SoBpxS46HEA "NOTES app • Flutter × Google Sheets")
 
 
 ### Learnings
